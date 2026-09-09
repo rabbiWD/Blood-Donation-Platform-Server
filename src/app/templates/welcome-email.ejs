@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Blood Donation Platform</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f6f8;
+        color: #2b2d42;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 40px 0;
+        background-color: #f4f6f8;
+      }
+      .container {
+        max-width: 580px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 36px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border-top: 5px solid #d90429;
+      }
+      .header-logo {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .header-logo h1 {
+        margin: 0;
+        color: #d90429;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .welcome-banner {
+        background: linear-gradient(135deg, #d90429 0%, #ef233c 100%);
+        color: #ffffff;
+        padding: 24px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .welcome-banner h2 {
+        margin: 0 0 8px 0;
+        font-size: 22px;
+      }
+      .welcome-banner p {
+        margin: 0;
+        color: #ffddd2;
+        font-size: 14px;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #4a5568;
+        margin-bottom: 16px;
+      }
+      .feature-list {
+        background-color: #f8fafc;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #d90429;
+        margin: 24px 0;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      .feature-item:last-child {
+        margin-bottom: 0;
+      }
+      .feature-icon {
+        font-size: 18px;
+        margin-right: 12px;
+      }
+      .feature-text {
+        font-size: 14px;
+        color: #2d3748;
+      }
+      .cta-box {
+        text-align: center;
+        margin: 32px 0 16px 0;
+      }
+      .cta-button {
+        display: inline-block;
+        padding: 14px 32px;
+        background-color: #d90429;
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(217, 4, 41, 0.3);
+      }
+      .footer {
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid #edf2f7;
+        text-align: center;
+        font-size: 12px;
+        color: #a0aec0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="header-logo">
+          <h1>🩸 Blood Donation & Emergency Platform</h1>
+        </div>
+
+        <div class="welcome-banner">
+          <h2>Welcome to the Lifesaving Community!</h2>
+          <p>Together, we bridge the gap between donors and patients in emergency need.</p>
+        </div>
+
+        <p>Hi <strong><%= name %></strong>,</p>
+        <p>Welcome aboard! Your account has been registered successfully as a <strong><%= role %></strong>.</p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-icon">🔍</span>
+            <span class="feature-text"><strong>Real-time Donor Discovery:</strong> Instantly match compatible blood donors based on blood group and location.</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🚨</span>
+            <span class="feature-text"><strong>Emergency Alerts:</strong> Create or respond to critical blood requests with urgency prioritization.</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🛡️</span>
+            <span class="feature-text"><strong>Safety & Eligibility:</strong> Automated 90-day donation cooldown tracking for donor health.</span>
+          </div>
+        </div>
+
+        <p>Log in to your account today to update your profile, adjust your donor availability, or submit blood requests.</p>
+
+        <div class="cta-box">
+          <a href="http://localhost:3000/login" class="cta-button">Go to Dashboard</a>
+        </div>
+
+        <div class="footer">
+          &copy; <%= new Date().getFullYear() %> Blood Donation & Emergency Assistance Platform. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
