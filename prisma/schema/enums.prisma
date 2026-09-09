@@ -1,0 +1,70 @@
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  DONOR
+  PATIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AuthProvider {
+  GOOGLE
+  CREDENTIAL
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+}
+
+enum UrgencyLevel {
+  CRITICAL
+  HIGH
+  STANDARD
+}
+
+enum RequestStatus {
+  PENDING
+  VERIFIED
+  MATCHED
+  FULFILLED
+  CANCELLED
+  EXPIRED
+}
+
+enum MatchStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentGateway {
+  STRIPE
+  BKASH
+  SSLCOMMERZ
+}
