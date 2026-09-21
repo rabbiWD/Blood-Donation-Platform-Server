@@ -409,10 +409,10 @@
 			]
 		},
 		{
-			"name": "5. Payment Processing (Stripe/bKash)",
+			"name": "5. Payment Processing (bKash Merchant)",
 			"item": [
 				{
-					"name": "Initiate Fee / Platform Support Payment",
+					"name": "Initiate bKash Donation / Support Payment",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -421,12 +421,41 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 25.00,\n  \"currency\": \"USD\",\n  \"gateway\": \"STRIPE\"\n}"
+							"raw": "{\n  \"amount\": 500.00,\n  \"currency\": \"BDT\",\n  \"gateway\": \"BKASH\",\n  \"payerReference\": \"John Donor\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/payments/initiate",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "v1", "payments", "initiate"]
+						}
+					}
+				},
+				{
+					"name": "bKash Browser Redirect Callback",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/bkash/callback?paymentID={{paymentID}}&status=success",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "bkash", "callback"],
+							"query": [
+								{ "key": "paymentID", "value": "{{paymentID}}" },
+								{ "key": "status", "value": "success" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Query bKash Payment Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/bkash/query/{{paymentID}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "bkash", "query", "{{paymentID}}"]
 						}
 					}
 				},
