@@ -31,12 +31,14 @@ const updateMyProfile = async (
 				? {
 						patientProfile: {
 							update: {
-								contactNumber: payload.contactNumber ?? user.patientProfile.contactNumber,
+								contactNumber:
+									payload.contactNumber ?? user.patientProfile.contactNumber,
 								address: payload.address ?? user.patientProfile.address,
-								hospitalName: payload.hospitalName ?? user.patientProfile.hospitalName,
+								hospitalName:
+									payload.hospitalName ?? user.patientProfile.hospitalName,
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
@@ -59,11 +61,17 @@ const updateDonorProfile = async (
 	});
 
 	if (user?.role !== "DONOR") {
-		throw new AppError(httpStatus.FORBIDDEN, "Only donors can update donor profiles");
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Only donors can update donor profiles",
+		);
 	}
 
 	if (!user.donorProfile) {
-		throw new AppError(httpStatus.NOT_FOUND, "Donor profile does not exist for this account");
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			"Donor profile does not exist for this account",
+		);
 	}
 
 	const updatedDonorProfile = await prisma.donorProfile.update({
@@ -108,7 +116,10 @@ const getEligibleDonors = async (query: IDonorSearchQuery) => {
 	}
 
 	if (query.district) {
-		whereConditions.district = { contains: query.district, mode: "insensitive" };
+		whereConditions.district = {
+			contains: query.district,
+			mode: "insensitive",
+		};
 	}
 
 	if (query.isAvailable !== undefined) {
@@ -171,64 +182,61 @@ const getEligibleDonors = async (query: IDonorSearchQuery) => {
 	};
 };
 
-const uploadProfileImage = async(buffer: Buffer, userId: string)=>{
+const uploadProfileImage = async (buffer: Buffer, userId: string) => {
+	const currentUser = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+		select: {
+			profileImage: true,
+			imagePublicId: true,
+		},
+	});
 
-    const currentUser = await prisma.user.findUnique({
-        where: {
-            id: userId
-        },
-        select: {
-            profileImage: true,
-            imagePublicId: true
-        }
-    })
-  
-const clodinaryResult = await new Promise<UploadApiResponse> ((resolve, reject) => {
-    cloudinary.uploader.upload_stream(
-        {
-        resource_type: "auto",
-       },
+	const clodinaryResult = await new Promise<UploadApiResponse>(
+		(resolve, reject) => {
+			cloudinary.uploader
+				.upload_stream(
+					{
+						resource_type: "auto",
+					},
 
+					async (error, result) => {
+						if (error) {
+							return reject(error);
+						}
 
-       async(error, result) => {
-        if(error){
-            return reject(error)
-        }
+						if (!result) {
+							return reject(new Error("No result returned from Cloudinary"));
+						}
 
-        if(!result){
-            return reject(new Error("No result returned from Cloudinary"))
-        }
+						resolve(result);
+					},
+				)
+				.end(buffer);
+		},
+	);
 
-        resolve(result)
+	const updateUser = await prisma.user.update({
+		where: {
+			id: userId,
+		},
+		data: {
+			profileImage: clodinaryResult?.secure_url,
+			imagePublicId: clodinaryResult?.public_id,
+		},
 
-        
-        
-       }
-).end(buffer)
-})
+		omit: {
+			password: true,
+		},
+	});
 
-const updateUser = await prisma.user.update({
-            where: {
-                id: userId
-            },
-            data: {
-                profileImage: clodinaryResult?.secure_url,
-                imagePublicId: clodinaryResult?.public_id
-            },
+	if (currentUser?.imagePublicId && currentUser.profileImage) {
+		await cloudinary.uploader.destroy(currentUser.imagePublicId);
+	}
 
-            omit: {
-                password: true,
-            }
-      });
-
-      if(currentUser?.imagePublicId && currentUser.profileImage){
-        await cloudinary.uploader.destroy(currentUser.imagePublicId)
-      }
-   
-
-      return updateUser
-
-}
+	return updateUser;
+};
 
 export const UserService = {
 	updateMyProfile,
