@@ -47,15 +47,18 @@ const getEligibleDonors = catchAsync(async (req: Request, res: Response) => {
 });
 
 const uploadProfileImage = catchAsync(async (req: Request, res: Response) => {
-    console.log(req.file, "req.file");
+	console.log(req.file, "req.file");
 
-    if(!req.file){
-        throw new Error("No file Provided.")
-    }
+	if (!req.file) {
+		throw new Error("No file Provided.");
+	}
 
-    const userId = req.user?.userId;
+	const userId = req.user?.userId;
 
-    const result =await UserService.uploadProfileImage(req.file?.buffer, userId!);
+	const result = await UserService.uploadProfileImage(
+		req.file?.buffer,
+		userId!,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

@@ -28,10 +28,11 @@ router.get(
 	UserController.getEligibleDonors,
 );
 
-router.patch("/profile-image",
-     auth(Role.SUPER_ADMIN, Role.ADMIN, Role.DONOR, Role.PATIENT),
-     upload.single("profileImage"),
-     UserController.uploadProfileImage);
-
+router.patch(
+	"/profile-image",
+	auth(Role.SUPER_ADMIN, Role.ADMIN, Role.DONOR, Role.PATIENT),
+	upload.single("profileImage"),
+	UserController.uploadProfileImage,
+);
 
 export const UserRoutes = router;
