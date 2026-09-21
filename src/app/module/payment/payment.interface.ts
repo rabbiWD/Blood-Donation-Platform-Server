@@ -5,6 +5,13 @@ export interface IInitiatePaymentPayload {
 	amount: number;
 	currency?: string;
 	gateway?: PaymentGateway;
+	payerReference?: string;
+}
+
+export interface IBkashCallbackQuery {
+	paymentID: string;
+	status: "success" | "failure" | "cancel" | string;
+	apiVersion?: string;
 }
 
 export interface IPaymentWebhookPayload {

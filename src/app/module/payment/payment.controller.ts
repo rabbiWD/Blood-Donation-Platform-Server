@@ -3,7 +3,11 @@ import httpStatus from "http-status";
 import { AppError } from "../../errors/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { prisma } from "../../lib/prisma";
+import type { IBkashCallbackQuery } from "./payment.interface";
 import { PaymentService } from "./payment.service";
+
+import { PaymentValidation } from "./payment.validation";
 
 const initiatePayment = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.userId;
@@ -16,6 +20,103 @@ const initiatePayment = catchAsync(async (req: Request, res: Response) => {
 		statusCode: httpStatus.CREATED,
 		success: true,
 		message: "Payment initiated successfully",
+		data: result,
+	});
+});
+
+const handleBkashCallback = catchAsync(async (req: Request, res: Response) => {
+	const parsedQuery = PaymentValidation.BkashCallbackZodSchema.parse(req.query);
+	const { redirectUrl } = await PaymentService.handleBkashCallback(
+		parsedQuery as unknown as IBkashCallbackQuery,
+	);
+	res.redirect(redirectUrl);
+});
+
+const paymentSuccess = catchAsync(async (req: Request, res: Response) => {
+	const { paymentID, trxID } = req.query as {
+		paymentID?: string;
+		trxID?: string;
+	};
+
+	const payment = paymentID
+		? await prisma.payment.findFirst({
+				where: { paymentIntentId: paymentID },
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+					bloodRequest: {
+						select: {
+							id: true,
+							patientName: true,
+							bloodGroup: true,
+						},
+					},
+				},
+			})
+		: null;
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "bKash payment completed successfully",
+		data: {
+			paymentID,
+			trxID: trxID || payment?.transactionId,
+			amount: payment?.amount,
+			currency: payment?.currency || "BDT",
+			status: "PAID",
+			payment,
+		},
+	});
+});
+
+const paymentFailed = catchAsync(async (req: Request, res: Response) => {
+	const { paymentID, message } = req.query as {
+		paymentID?: string;
+		message?: string;
+	};
+
+	sendResponse(res, {
+		statusCode: httpStatus.BAD_REQUEST,
+		success: false,
+		message: message || "bKash payment failed",
+		data: {
+			paymentID,
+			status: "FAILED",
+		},
+	});
+});
+
+const paymentCancel = catchAsync(async (req: Request, res: Response) => {
+	const { paymentID } = req.query as { paymentID?: string };
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: false,
+		message: "bKash payment was cancelled by user",
+		data: {
+			paymentID,
+			status: "CANCELLED",
+		},
+	});
+});
+
+const queryBkashPayment = catchAsync(async (req: Request, res: Response) => {
+	const paymentId = req.params.paymentId as string;
+	if (!paymentId) {
+		throw new AppError(httpStatus.BAD_REQUEST, "paymentId is required");
+	}
+
+	const result = await PaymentService.queryBkashPayment(paymentId);
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "bKash payment status queried successfully",
 		data: result,
 	});
 });
@@ -65,6 +166,11 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
 
 export const PaymentController = {
 	initiatePayment,
+	handleBkashCallback,
+	paymentSuccess,
+	paymentFailed,
+	paymentCancel,
+	queryBkashPayment,
 	handleWebhook,
 	getPaymentHistory,
 	getPaymentById,
