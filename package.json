@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "tsx watch src/server.ts",
         "prisma:generate": "prisma generate --schema=prisma/schema",
-        "build": "prisma generate --schema=prisma/schema && tsc",
+        "build": "node -e \"fs.rmSync('dist', {recursive: true, force: true})\" && prisma generate --schema=prisma/schema && tsc",
         "postinstall": "prisma generate --schema=prisma/schema",
         "start": "node dist/src/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
