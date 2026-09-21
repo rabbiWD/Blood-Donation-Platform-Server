@@ -5,7 +5,11 @@ import type { TokenPayload } from "google-auth-library";
 import httpStatus from "http-status";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import path from "path";
-import { AuthProvider, Role, UserStatus } from "../../../generated/prisma/client";
+import {
+	AuthProvider,
+	Role,
+	UserStatus,
+} from "../../../generated/prisma/client";
 import config from "../../config";
 import { AppError } from "../../errors/AppError";
 import { googleClient } from "../../lib/googleAuth";
@@ -123,7 +127,10 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 	}
 
 	if (redisOtp && redisOtp !== otp) {
-		throw new AppError(httpStatus.BAD_REQUEST, "OTP Does not match or has expired");
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"OTP Does not match or has expired",
+		);
 	}
 
 	let registerPayload: IRegisterUserPayload;
@@ -131,10 +138,19 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 	if (redisUserData) {
 		registerPayload = JSON.parse(redisUserData);
 	} else {
-		throw new AppError(httpStatus.BAD_REQUEST, "Registration session expired. Please register again.");
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Registration session expired. Please register again.",
+		);
 	}
 
-	const { name, role = Role.PATIENT, password, donor, patient } = registerPayload;
+	const {
+		name,
+		role = Role.PATIENT,
+		password,
+		donor,
+		patient,
+	} = registerPayload;
 
 	let createdUser: any;
 
@@ -154,7 +170,8 @@ const verifyEmail = async (payload: IVerifyEmailPayload) => {
 						address: donor.address || "",
 						city: donor.city,
 						district: donor.district,
-						isAvailable: donor.isAvailable !== undefined ? donor.isAvailable : true,
+						isAvailable:
+							donor.isAvailable !== undefined ? donor.isAvailable : true,
 						lastDonationDate: donor.lastDonationDate
 							? new Date(donor.lastDonationDate)
 							: null,
@@ -261,7 +278,10 @@ const loginUser = async (payload: ILoginUserPayload) => {
 		);
 	}
 
-	const isPasswordMatched = await bcrypt.compare(password, user.password as string);
+	const isPasswordMatched = await bcrypt.compare(
+		password,
+		user.password as string,
+	);
 
 	if (!isPasswordMatched) {
 		throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
@@ -309,11 +329,17 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 		googlePayload = ticket.getPayload();
 	} catch (error) {
 		console.error("Google Id Token Verification Failed", error);
-		throw new AppError(httpStatus.UNAUTHORIZED, "Invalid or Expired Google Id Token");
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"Invalid or Expired Google Id Token",
+		);
 	}
 
 	if (!googlePayload || !googlePayload.email || !googlePayload.name) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Google email or name not found");
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Google email or name not found",
+		);
 	}
 
 	const email = googlePayload.email.trim().toLowerCase();
@@ -324,7 +350,10 @@ const googleLogin = async (payload: IGoogleLoginPayload) => {
 
 	if (user) {
 		if (user.status === UserStatus.BLOCKED || user.isDeleted) {
-			throw new AppError(httpStatus.FORBIDDEN, "User account is blocked or deleted");
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"User account is blocked or deleted",
+			);
 		}
 
 		if (!user.googleId) {
@@ -459,7 +488,9 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 	const { email, otp, newPassword } = payload;
 	const formattedEmail = email.trim().toLowerCase();
 
-	const user = await prisma.user.findUnique({ where: { email: formattedEmail } });
+	const user = await prisma.user.findUnique({
+		where: { email: formattedEmail },
+	});
 
 	if (!user || user.isDeleted) {
 		throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
@@ -535,10 +566,16 @@ const getMe = async (userPayload: IRequestUser) => {
 };
 
 const refreshToken = async (token: string) => {
-	const verifiedRefreshToken = jwtUtils.verifyToken(token, config.jwt_refresh_secret);
+	const verifiedRefreshToken = jwtUtils.verifyToken(
+		token,
+		config.jwt_refresh_secret,
+	);
 
 	if (!verifiedRefreshToken.success || !verifiedRefreshToken.data) {
-		throw new AppError(httpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"Invalid or expired refresh token",
+		);
 	}
 
 	const data = verifiedRefreshToken.data as JwtPayload;
@@ -548,7 +585,10 @@ const refreshToken = async (token: string) => {
 	});
 
 	if (!user || user.isDeleted || user.status !== UserStatus.ACTIVE) {
-		throw new AppError(httpStatus.UNAUTHORIZED, "User account inactive or not found");
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User account inactive or not found",
+		);
 	}
 
 	const jwtPayload = {
