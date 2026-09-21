@@ -156,9 +156,15 @@ const getDashboardStats = async () => {
 		prisma.user.count({ where: { role: "DONOR", isDeleted: false } }),
 		prisma.user.count({ where: { role: "PATIENT", isDeleted: false } }),
 		prisma.bloodRequest.count({ where: { isDeleted: false } }),
-		prisma.bloodRequest.count({ where: { status: "FULFILLED", isDeleted: false } }),
-		prisma.bloodRequest.count({ where: { status: "PENDING", isDeleted: false } }),
-		prisma.bloodRequest.count({ where: { status: "MATCHED", isDeleted: false } }),
+		prisma.bloodRequest.count({
+			where: { status: "FULFILLED", isDeleted: false },
+		}),
+		prisma.bloodRequest.count({
+			where: { status: "PENDING", isDeleted: false },
+		}),
+		prisma.bloodRequest.count({
+			where: { status: "MATCHED", isDeleted: false },
+		}),
 		prisma.payment.count(),
 		prisma.payment.aggregate({
 			_sum: { amount: true },
