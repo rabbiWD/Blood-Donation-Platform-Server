@@ -8,7 +8,7 @@
         "prisma:generate": "prisma generate --schema=prisma/schema",
         "build": "node -e \"fs.rmSync('dist', {recursive: true, force: true})\" && prisma generate --schema=prisma/schema && tsc",
         "postinstall": "prisma generate --schema=prisma/schema",
-        "start": "node dist/src/server.js",
+        "start": "node dist/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "format:check": "npx @biomejs/biome format ./src",
         "format:fix": "npx @biomejs/biome format --write ./src",
