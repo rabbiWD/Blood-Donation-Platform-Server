@@ -1,0 +1,2 @@
+[phases.build]
+cmds = ["npx prisma generate --schema=prisma/schema", "npx tsc"]
