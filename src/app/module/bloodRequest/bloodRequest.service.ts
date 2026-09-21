@@ -1,12 +1,12 @@
-import type { BloodGroup, Prisma } from "../../../generated/prisma/client";
-import { AppError } from "../../errors/AppError";
-import { prisma } from "../../lib/prisma";
+import type { BloodGroup, Prisma } from "@prisma/client";
+import { AppError } from "../../errors/AppError.js";
+import { prisma } from "../../lib/prisma.js";
 import httpStatus from "http-status";
 import type {
 	IBloodRequestQuery,
 	ICreateBloodRequestPayload,
 	IUpdateBloodRequestPayload,
-} from "./bloodRequest.interface";
+} from "./bloodRequest.interface.js";
 
 // Blood compatibility map: Donor Blood Group -> Compatible Recipient Blood Groups
 const donorCompatibilityMap: Record<BloodGroup, BloodGroup[]> = {

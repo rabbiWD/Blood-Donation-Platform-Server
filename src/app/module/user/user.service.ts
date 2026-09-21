@@ -1,13 +1,13 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { AppError } from "../../errors/AppError";
-import { prisma } from "../../lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { AppError } from "../../errors/AppError.js";
+import { prisma } from "../../lib/prisma.js";
 import httpStatus from "http-status";
 import type {
 	IDonorSearchQuery,
 	IUpdateDonorProfilePayload,
 	IUpdateUserProfilePayload,
-} from "./user.interface";
-import { cloudinary } from "../../lib/cloudinary";
+} from "./user.interface.js";
+import { cloudinary } from "../../lib/cloudinary.js";
 import { UploadApiResponse } from "cloudinary";
 
 const updateMyProfile = async (

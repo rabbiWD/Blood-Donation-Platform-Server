@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import { AppError } from "../../errors/AppError";
-import { catchAsync } from "../../utils/catchAsync";
-import { sendResponse } from "../../utils/sendResponse";
-import type { IRequestUser } from "./auth.interface";
-import { AuthService } from "./auth.service";
+import { AppError } from "../../errors/AppError.js";
+import { catchAsync } from "../../utils/catchAsync.js";
+import { sendResponse } from "../../utils/sendResponse.js";
+import type { IRequestUser } from "./auth.interface.js";
+import { AuthService } from "./auth.service.js";
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
 	const result = await AuthService.registerUser(req.body);

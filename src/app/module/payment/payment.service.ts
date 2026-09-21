@@ -1,14 +1,14 @@
 import crypto from "node:crypto";
 import httpStatus from "http-status";
-import config from "../../config";
-import { AppError } from "../../errors/AppError";
-import { BkashClient } from "../../lib/bkash";
-import { prisma } from "../../lib/prisma";
+import config from "../../config/index.js";
+import { AppError } from "../../errors/AppError.js";
+import { BkashClient } from "../../lib/bkash.js";
+import { prisma } from "../../lib/prisma.js";
 import type {
 	IBkashCallbackQuery,
 	IInitiatePaymentPayload,
 	IPaymentWebhookPayload,
-} from "./payment.interface";
+} from "./payment.interface.js";
 
 const initiatePayment = async (
 	userId: string,

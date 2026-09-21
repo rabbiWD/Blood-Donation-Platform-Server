@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
-import config from "../config";
-import { AppError } from "../errors/AppError";
+import config from "../config/index.js";
+import { AppError } from "../errors/AppError.js";
 
 interface IBkashGrantTokenResponse {
 	statusCode: string;

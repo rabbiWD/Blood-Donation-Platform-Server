@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import { AppError } from "../../errors/AppError";
-import { catchAsync } from "../../utils/catchAsync";
-import { sendResponse } from "../../utils/sendResponse";
-import { UserService } from "./user.service";
+import { AppError } from "../../errors/AppError.js";
+import { catchAsync } from "../../utils/catchAsync.js";
+import { sendResponse } from "../../utils/sendResponse.js";
+import { UserService } from "./user.service.js";
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.userId;

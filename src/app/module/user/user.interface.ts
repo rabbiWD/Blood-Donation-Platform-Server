@@ -1,4 +1,4 @@
-import type { BloodGroup } from "../../../generated/prisma/client";
+import type { BloodGroup } from "@prisma/client";
 
 export interface IUpdateUserProfilePayload {
 	name?: string;

@@ -1,4 +1,4 @@
-import type { BloodGroup, Role } from "../../../generated/prisma/client";
+import type { BloodGroup, Role } from "@prisma/client";
 
 export interface ILoginUserPayload {
 	email: string;

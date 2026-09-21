@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { Role } from "../../../generated/prisma/client";
-import { auth } from "../../middleware/checkAuth";
-import { validateRequest } from "../../middleware/validateRequest";
-import { BloodRequestController } from "./bloodRequest.controller";
-import { BloodRequestValidation } from "./bloodRequest.validation";
+import { Role } from "@prisma/client";
+import { auth } from "../../middleware/checkAuth.js";
+import { validateRequest } from "../../middleware/validateRequest.js";
+import { BloodRequestController } from "./bloodRequest.controller.js";
+import { BloodRequestValidation } from "./bloodRequest.validation.js";
 
 const router = Router();
 

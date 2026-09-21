@@ -1,4 +1,4 @@
-import type { PaymentGateway } from "../../../generated/prisma/client";
+import type { PaymentGateway } from "@prisma/client";
 
 export interface IInitiatePaymentPayload {
 	requestId?: string;

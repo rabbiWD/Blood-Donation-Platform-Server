@@ -1,12 +1,12 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { AppError } from "../../errors/AppError";
-import { prisma } from "../../lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { AppError } from "../../errors/AppError.js";
+import { prisma } from "../../lib/prisma.js";
 import httpStatus from "http-status";
 import type {
 	IAdminUserQuery,
 	IUpdateUserRolePayload,
 	IUpdateUserStatusPayload,
-} from "./admin.interface";
+} from "./admin.interface.js";
 
 const getAllUsers = async (query: IAdminUserQuery) => {
 	const page = Number(query.page) || 1;

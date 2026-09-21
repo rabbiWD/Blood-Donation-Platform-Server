@@ -1,9 +1,9 @@
 // import type { Request, Response } from "express";
 // import httpStatus from "http-status";
-// import { AppError } from "../../errors/AppError";
-// import { uploadToCloudinary } from "../../lib/cloudinary";
-// import { catchAsync } from "../../utils/catchAsync";
-// import { sendResponse } from "../../utils/sendResponse";
+// import { AppError } from "../../errors/AppError.js";
+// import { uploadToCloudinary } from "../../lib/cloudinary.js";
+// import { catchAsync } from "../../utils/catchAsync.js";
+// import { sendResponse } from "../../utils/sendResponse.js";
 
 // const uploadSingleFile = catchAsync(async (req: Request, res: Response) => {
 // 	if (!req.file) {

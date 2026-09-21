@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import { AppError } from "../../errors/AppError";
-import { catchAsync } from "../../utils/catchAsync";
-import { sendResponse } from "../../utils/sendResponse";
-import { BloodRequestService } from "./bloodRequest.service";
+import { AppError } from "../../errors/AppError.js";
+import { catchAsync } from "../../utils/catchAsync.js";
+import { sendResponse } from "../../utils/sendResponse.js";
+import { BloodRequestService } from "./bloodRequest.service.js";
 
 const createBloodRequest = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.userId;

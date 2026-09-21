@@ -6,15 +6,15 @@ import express, {
 	type Response,
 } from "express";
 import httpStatus from "http-status";
-import config from "./app/config";
-import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
-import { notFound } from "./app/middleware/notFound";
-import { AdminRoutes } from "./app/module/admin/admin.route";
-import { AuthRoutes } from "./app/module/auth/auth.route";
-import { BloodRequestRoutes } from "./app/module/bloodRequest/bloodRequest.route";
-// import { FileRoutes } from "./app/module/file/file.route";
-import { PaymentRoutes } from "./app/module/payment/payment.route";
-import { UserRoutes } from "./app/module/user/user.route";
+import config from "./app/config/index.js";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler.js";
+import { notFound } from "./app/middleware/notFound.js";
+import { AdminRoutes } from "./app/module/admin/admin.route.js";
+import { AuthRoutes } from "./app/module/auth/auth.route.js";
+import { BloodRequestRoutes } from "./app/module/bloodRequest/bloodRequest.route.js";
+// import { FileRoutes } from "./app/module/file/file.route.js";
+import { PaymentRoutes } from "./app/module/payment/payment.route.js";
+import { UserRoutes } from "./app/module/user/user.route.js";
 
 const app: Application = express();
 
