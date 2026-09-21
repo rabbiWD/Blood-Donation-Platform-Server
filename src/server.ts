@@ -3,7 +3,11 @@ import config from "./app/config";
 import { transporter } from "./app/lib/nodemailer";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
-import { seedSuperAdmin, seedTesterAdmin, seedTesterDonor } from "./app/utils/seed";
+import {
+	seedSuperAdmin,
+	seedTesterAdmin,
+	seedTesterDonor,
+} from "./app/utils/seed";
 
 const PORT = config.port || 5000;
 
@@ -22,7 +26,7 @@ const main = async () => {
 		console.log("Connected to Redis successfully.");
 
 		await transporter.verify();
-		console.log("Nodemailer Connected Successfully")
+		console.log("Nodemailer Connected Successfully");
 
 		await seedSuperAdmin();
 		await seedTesterAdmin();
