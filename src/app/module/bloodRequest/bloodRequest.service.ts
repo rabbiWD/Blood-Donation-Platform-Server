@@ -85,7 +85,10 @@ const getAllBloodRequests = async (query: IBloodRequestQuery) => {
 	}
 
 	if (query.district) {
-		whereConditions.district = { contains: query.district, mode: "insensitive" };
+		whereConditions.district = {
+			contains: query.district,
+			mode: "insensitive",
+		};
 	}
 
 	if (query.search) {
@@ -185,8 +188,15 @@ const updateBloodRequest = async (
 		throw new AppError(httpStatus.NOT_FOUND, "Blood request not found");
 	}
 
-	if (request.requesterId !== userId && userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
-		throw new AppError(httpStatus.FORBIDDEN, "Not authorized to update this blood request");
+	if (
+		request.requesterId !== userId &&
+		userRole !== "ADMIN" &&
+		userRole !== "SUPER_ADMIN"
+	) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Not authorized to update this blood request",
+		);
 	}
 
 	const updated = await prisma.bloodRequest.update({
@@ -201,25 +211,40 @@ const updateBloodRequest = async (
 			district: payload.district || request.district,
 			urgency: payload.urgency || request.urgency,
 			status: payload.status || request.status,
-			neededBy: payload.neededBy ? new Date(payload.neededBy) : request.neededBy,
+			neededBy: payload.neededBy
+				? new Date(payload.neededBy)
+				: request.neededBy,
 			additionalNotes: payload.additionalNotes ?? request.additionalNotes,
 			isVerified:
-				payload.isVerified !== undefined ? payload.isVerified : request.isVerified,
+				payload.isVerified !== undefined
+					? payload.isVerified
+					: request.isVerified,
 		},
 	});
 
 	return updated;
 };
 
-const deleteBloodRequest = async (id: string, userId: string, userRole: string) => {
+const deleteBloodRequest = async (
+	id: string,
+	userId: string,
+	userRole: string,
+) => {
 	const request = await prisma.bloodRequest.findUnique({ where: { id } });
 
 	if (!request || request.isDeleted) {
 		throw new AppError(httpStatus.NOT_FOUND, "Blood request not found");
 	}
 
-	if (request.requesterId !== userId && userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
-		throw new AppError(httpStatus.FORBIDDEN, "Not authorized to delete this request");
+	if (
+		request.requesterId !== userId &&
+		userRole !== "ADMIN" &&
+		userRole !== "SUPER_ADMIN"
+	) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Not authorized to delete this request",
+		);
 	}
 
 	await prisma.bloodRequest.update({
@@ -301,11 +326,17 @@ const acceptBloodRequest = async (requestId: string, donorUserId: string) => {
 	}
 
 	if (!donorProfile.isAvailable) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Donor availability is currently set to UNAVAILABLE.");
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Donor availability is currently set to UNAVAILABLE.",
+		);
 	}
 
 	const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-	if (donorProfile.lastDonationDate && donorProfile.lastDonationDate > ninetyDaysAgo) {
+	if (
+		donorProfile.lastDonationDate &&
+		donorProfile.lastDonationDate > ninetyDaysAgo
+	) {
 		throw new AppError(
 			httpStatus.BAD_REQUEST,
 			`Donor is not eligible yet. Last donation was on ${donorProfile.lastDonationDate.toISOString().split("T")[0]}. Must wait 90 days between donations.`,
@@ -336,7 +367,10 @@ const acceptBloodRequest = async (requestId: string, donorUserId: string) => {
 		);
 
 		if (existingAssignment && existingAssignment.status === "ACCEPTED") {
-			throw new AppError(httpStatus.CONFLICT, "You have already accepted this blood request.");
+			throw new AppError(
+				httpStatus.CONFLICT,
+				"You have already accepted this blood request.",
+			);
 		}
 
 		// Check if request accepted units limit reached
@@ -406,6 +440,25 @@ const completeBloodDonation = async (
 		throw new AppError(
 			httpStatus.FORBIDDEN,
 			"Not authorized to mark this donation as completed",
+		);
+	}
+
+	// Verify that the donor has actually accepted the request first
+	const existingAssignment = request.matches.find(
+		(match) => match.donorId === donorUserId,
+	);
+
+	if (!existingAssignment) {
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			`No donor assignment found for donor ID "${donorUserId}" on this request. The donor must accept the request first before donation can be completed.`,
+		);
+	}
+
+	if (existingAssignment.status === "COMPLETED") {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"This donation has already been marked as completed.",
 		);
 	}
 

@@ -72,7 +72,11 @@ const deleteBloodRequest = catchAsync(async (req: Request, res: Response) => {
 		throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
 	}
 
-	const result = await BloodRequestService.deleteBloodRequest(id, userId, userRole);
+	const result = await BloodRequestService.deleteBloodRequest(
+		id,
+		userId,
+		userRole,
+	);
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
@@ -96,20 +100,23 @@ const getMyBloodRequests = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const getCompatibleRequestsForDonor = catchAsync(async (req: Request, res: Response) => {
-	const userId = req.user?.userId;
-	if (!userId) {
-		throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-	}
+const getCompatibleRequestsForDonor = catchAsync(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.userId;
+		if (!userId) {
+			throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
+		}
 
-	const result = await BloodRequestService.getCompatibleRequestsForDonor(userId);
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "Compatible blood requests retrieved successfully",
-		data: result,
-	});
-});
+		const result =
+			await BloodRequestService.getCompatibleRequestsForDonor(userId);
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Compatible blood requests retrieved successfully",
+			data: result,
+		});
+	},
+);
 
 const acceptBloodRequest = catchAsync(async (req: Request, res: Response) => {
 	const id = req.params.id as string;
@@ -127,34 +134,39 @@ const acceptBloodRequest = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const completeBloodDonation = catchAsync(async (req: Request, res: Response) => {
-	const id = req.params.id as string;
-	const { donorUserId } = req.body;
-	const userId = req.user?.userId;
-	const userRole = req.user?.role;
+const completeBloodDonation = catchAsync(
+	async (req: Request, res: Response) => {
+		const id = req.params.id as string;
+		const { donorUserId } = req.body;
+		const userId = req.user?.userId;
+		const userRole = req.user?.role;
 
-	if (!userId || !userRole) {
-		throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
-	}
+		if (!userId || !userRole) {
+			throw new AppError(httpStatus.UNAUTHORIZED, "User not authenticated");
+		}
 
-	if (!donorUserId) {
-		throw new AppError(httpStatus.BAD_REQUEST, "donorUserId is required in body");
-	}
+		if (!donorUserId) {
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				"donorUserId is required in body",
+			);
+		}
 
-	const result = await BloodRequestService.completeBloodDonation(
-		id,
-		donorUserId,
-		userId,
-		userRole,
-	);
+		const result = await BloodRequestService.completeBloodDonation(
+			id,
+			donorUserId,
+			userId,
+			userRole,
+		);
 
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "Blood donation marked as completed successfully",
-		data: result,
-	});
-});
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Blood donation marked as completed successfully",
+			data: result,
+		});
+	},
+);
 
 export const BloodRequestController = {
 	createBloodRequest,

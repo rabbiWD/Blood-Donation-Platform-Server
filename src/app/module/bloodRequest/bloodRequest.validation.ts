@@ -12,7 +12,14 @@ const bloodGroupEnum = z.enum([
 ]);
 
 const urgencyEnum = z.enum(["CRITICAL", "HIGH", "STANDARD"]);
-const statusEnum = z.enum(["PENDING", "VERIFIED", "MATCHED", "FULFILLED", "CANCELLED", "EXPIRED"]);
+const statusEnum = z.enum([
+	"PENDING",
+	"VERIFIED",
+	"MATCHED",
+	"FULFILLED",
+	"CANCELLED",
+	"EXPIRED",
+]);
 
 const CreateBloodRequestZodSchema = z.object({
 	patientName: z.string({ message: "Patient name is required" }),

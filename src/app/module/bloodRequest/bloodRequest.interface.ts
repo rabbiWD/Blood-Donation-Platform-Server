@@ -1,4 +1,8 @@
-import type { BloodGroup, RequestStatus, UrgencyLevel } from "../../../generated/prisma/client";
+import type {
+	BloodGroup,
+	RequestStatus,
+	UrgencyLevel,
+} from "../../../generated/prisma/client";
 
 export interface ICreateBloodRequestPayload {
 	patientName: string;
