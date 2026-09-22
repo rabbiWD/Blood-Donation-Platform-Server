@@ -1,257 +1,324 @@
-# PH Healthcare System — Backend
+#  Blood Donation & Emergency Assistance Platform — Backend API
 
-REST API for a doctor-appointment platform: patients book consultations, doctors run them, admins manage the platform. This repo is the backend only.
+[![Node.js](https://img.shields.io/badge/Node.js-v20%2B-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-v5.2-blue.svg)](https://expressjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-v7.0-blue.svg)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-v7.9-2D3748.svg)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-v14%2B-4169E1.svg)](https://www.postgresql.org/)
+[![bKash](https://img.shields.io/badge/bKash-Payment%20Gateway-e2136e.svg)](https://developer.bka.sh/)
 
-**Stack:** Node.js · Express 5 · TypeScript · Prisma 7 · PostgreSQL · JWT auth
+A robust, enterprise-ready RESTful API backend for a **Blood Donation & Emergency Assistance Platform**. This system connects patients and hospitals in urgent need of blood with voluntary donors, provides compatible donor matching algorithms, supports monetary donations via **bKash Payment Gateway**, and features an extensive **Admin Management Dashboard**.
 
-## Where the project stands today
+---
 
-This is an early build, not the finished product. Right now the only working feature is authentication — a patient can register, log in, and fetch their own profile. Appointments, doctor schedules, payments, and everything else in [`Project Requirements.md`](./Project%20Requirements.md) is planned but not built yet.
+##  Table of Contents
 
-Treat this README as a description of what the code *actually does today*, including its rough edges. A few are called out directly in [Known limitations](#known-limitations) further down — read that section before assuming something is broken on your end.
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Architecture & Structure](#-project-architecture--structure)
+- [Prerequisites](#-prerequisites)
+- [Getting Started & Installation](#-getting-started--installation)
+- [Environment Variables Guide](#-environment-variables-guide)
+- [Database Seeding](#-database-seeding)
+- [API Documentation](#-api-documentation)
+  - [Authentication (`/api/v1/auth`)](#1-authentication-apiv1auth)
+  - [User & Donor Profile (`/api/v1/users`)](#2-user--donor-profile-apiv1users)
+  - [Blood Requests (`/api/v1/blood-requests`)](#3-blood-requests-apiv1blood-requests)
+  - [Payments & Donations (`/api/v1/payments`)](#4-payments--donations-apiv1payments)
+  - [Admin & Analytics (`/api/v1/admin`)](#5-admin--analytics-apiv1admin)
+- [Docker & Deployment](#-docker--deployment)
+- [Postman Collection](#-postman-collection)
+- [License](#-license)
 
-## Prerequisites
+---
 
-| Tool           | Version | Check with |
-| -------------- | ------- | ---------- |
-| **Node.js**    | 20+     | `node -v`  |
-| **PostgreSQL** | 14+     | `psql -V`  |
+##  Features
 
-Any package manager works (npm, pnpm, yarn, bun). The examples below use `npm`.
+###  Authentication & Security
+- **Multi-Method Login**: Support for traditional Email/Password and **Google OAuth 2.0 Single Sign-On**.
+- **Email Verification**: OTP-based email verification using **Nodemailer** & dynamic **EJS HTML templates**.
+- **JWT Authentication & Token Rotation**: Dual-token architecture with HTTP-only cookies and Authorization Bearer header support.
+- **Password Reset Flow**: Secure OTP verification for forgotten password reset workflows.
+- **Role-Based Access Control (RBAC)**: Fine-grained authorization guards supporting `PATIENT`, `DONOR`, `ADMIN`, and `SUPER_ADMIN`.
 
-## Getting started
+###  Donor Management & Matching
+- **Donor Registration & Availability**: Donors can update availability status, blood group, last donation date, and location.
+- **Eligible Donor Search**: Advanced search & filtering API based on blood compatibility, location (city, district), and availability.
+- **Cloudinary Image Upload**: Profile photo uploads powered by **Multer** middleware and **Cloudinary** cloud storage.
 
-**1. Install dependencies**
+### Emergency Blood Requests & Workflow
+- **Request Creation**: Patients and admins can log urgent blood requests with required units, hospital details, and urgency levels.
+- **Donor Compatibility Engine**: Automatic matching of active requests with compatible donors.
+- **Request Lifecycle**: Complete workflow management from creation (`PENDING`), donor acceptance (`ACCEPTED`), to completion (`COMPLETED`) or cancellation.
 
+###  Monetary Donations & bKash Integration
+- **bKash Payment Gateway**: Complete integration with bKash Tokenized Payment API.
+- **Payment Lifecycle**: Payment initiation, automated bKash callback handling, status query endpoints, and webhooks.
+- **Transaction History**: User donation tracking and receipt details.
+
+###  Admin Management & Analytics
+- **System Dashboard Stats**: Overview of overall platform activity, user counts, donation stats, and financial metrics.
+- **User Management**: Admin tools to view all accounts, change user roles, and suspend/block users.
+- **Audit Logging**: Security log tracking for critical administrative and system events.
+
+---
+
+##  Tech Stack
+
+| Domain | Technology |
+|---|---|
+| **Runtime Environment** | Node.js (v20+) |
+| **Framework** | Express 5 |
+| **Language** | TypeScript |
+| **Database** | PostgreSQL |
+| **ORM** | Prisma 7 |
+| **Caching / Sessions** | Redis |
+| **Authentication** | JSON Web Token (JWT), bcryptjs, Google Auth Library |
+| **Payment Gateway** | bKash Tokenized API (Sandbox & Production) |
+| **File Storage** | Cloudinary (via Multer) |
+| **Email Service** | Nodemailer with EJS Templating |
+| **Validation & Linting** | Zod Schema Validation, Biome JS |
+| **Containerization** | Docker, Multi-Stage Dockerfile, Nixpacks |
+
+---
+
+##  Project Architecture & Structure
+
+```
+blood-donation-backend/
+├── prisma/
+│   ├── schema/                      # Modular Prisma schemas
+│   │   ├── schema.prisma            # Datasource & generator setup
+│   │   ├── user.prisma              # Base User entity
+│   │   ├── donor.prisma             # Donor profile schema
+│   │   ├── patient.prisma           # Patient profile schema
+│   │   ├── blood_request.prisma     # Blood request workflow models
+│   │   ├── payment.prisma           # Payment transaction models
+│   │   ├── audit.prisma             # Audit logging model
+│   │   └── enums.prisma             # Role, BloodGroup, Status enums
+│   └── migrations/                  # Database SQL migration files
+├── src/
+│   ├── server.ts                    # Entrypoint: Database connection & server start
+│   ├── app.ts                       # Express application setup, middlewares, routes
+│   └── app/
+│       ├── config/                  # Centralized environment configurations
+│       ├── lib/                     # Third-party wrappers (Prisma client, Multer, etc.)
+│       ├── middleware/              # Auth guards, request validators, global error handlers
+│       ├── utils/                   # JWT helpers, seed scripts, response wrappers
+│       └── module/                  # Feature Modules (Routes, Controllers, Services, Validations)
+│           ├── admin/
+│           ├── auth/
+│           ├── bloodRequest/
+│           ├── file/
+│           ├── payment/
+│           └── user/
+├── Blood_Donation_Platform.postman_collection.json  # Exported Postman API collection
+├── Dockerfile                       # Multi-stage production build container
+├── docker-entrypoint.sh             # Startup script running Prisma migrations
+└── package.json
+```
+
+---
+
+##  Prerequisites
+
+Ensure you have the following installed on your system:
+- **Node.js**: `v20.x` or higher
+- **npm** / **yarn** / **pnpm**
+- **PostgreSQL**: `v14` or higher
+- **Redis**: `v6` or higher (Optional, for caching features)
+
+---
+
+##  Getting Started & Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/rabbiWD/Blood-Donation-Platform-Server.git
+cd Blood-Donation-Platform-Server
+```
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-**2. Set up your environment file**
-
+### 3. Setup Environment Variables
+Copy `.env.example` to create your own `.env` file:
 ```bash
 cp .env.example .env
 ```
+Fill in your database URL and required secret keys in `.env` (refer to the [Environment Variables Guide](#-environment-variables-guide)).
 
-Open `.env` and point `DATABASE_URL` at a Postgres database you can connect to:
-
-```
-DATABASE_URL="postgresql://YOUR_USERNAME:YOUR_PASSWORD@localhost:5432/ph_healthcare?schema=public"
-```
-
-The database doesn't need to exist beforehand — `prisma migrate dev` creates it. The other variables in `.env.example` are fine to leave as-is for local development; see [Environment variables](#environment-variables) for what each one does.
-
-**3. Generate the Prisma client**
-
+### 4. Generate Prisma Client
 ```bash
-npx prisma generate
+npm run prisma:generate
 ```
 
-Prisma writes a typed client into `src/generated/prisma`. That folder is git-ignored, so a fresh clone never has it, and almost every file under `src/` imports from it — skip this step and nothing compiles. Re-run it any time you change a file in `prisma/schema/`.
-
-**4. Run the migrations**
-
+### 5. Run Database Migrations
 ```bash
-npx prisma migrate dev
+npm run prisma:migrate
 ```
-
-This creates the `user` and `patient` tables using the SQL already committed under `prisma/migrations/`.
-
-**5. Start the server**
-
+*For local development development schema sync:*
 ```bash
-npm run dev
+npx prisma db push --schema=prisma/schema
 ```
 
-You should see:
+### 6. Start the Server
 
-```
-Connected to the database successfully.
-Server is running on port 5000
-```
+- **Development Mode** (with live reload):
+  ```bash
+  npm run dev
+  ```
 
-Confirm it's up:
+- **Production Mode**:
+  ```bash
+  npm run build
+  npm run start
+  ```
 
-```bash
-curl http://localhost:5000/
-# {"success":true,"message":"Welcome to PH Healthcare System Backend"}
-```
+Server will start on `http://localhost:5000` (or specified `PORT`).
 
-## Environment variables
+---
 
-`src/app/config/index.ts` is the only place `process.env` is read — application code should import `config` from there rather than reaching for `process.env` directly.
+##  Environment Variables Guide
 
-| Variable                  | What it's for                                                      |
-| -------------------------- | ------------------------------------------------------------------ |
-| `NODE_ENV`                 | `development` includes the raw error and stack trace in API error responses |
-| `PORT`                     | Port the HTTP server listens on                                    |
-| `DATABASE_URL`             | Postgres connection string, used by both Prisma and the app        |
-| `JWT_ACCESS_SECRET`        | Signing key for access tokens                                      |
-| `JWT_REFRESH_SECRET`       | Signing key for refresh tokens                                     |
-| `JWT_ACCESS_EXPIRES_IN`    | Access token lifetime (e.g. `15m`, `1d`)                            |
-| `JWT_REFRESH_EXPIRES_IN`   | Refresh token lifetime                                              |
-| `BCRYPT_SALT_ROUNDS`       | Read into config but not wired up yet — password hashing currently uses a hardcoded value (see below) |
-| `BACKEND_URL`              | Read into config but not used anywhere yet                          |
-| `FRONTEND_URL`             | Added to the CORS allowlist                                        |
+| Variable | Description | Default / Example |
+|---|---|---|
+| `NODE_ENV` | Environment mode (`development` / `production`) | `development` |
+| `PORT` | HTTP Port for the application server | `5000` |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/blood_donation_db` |
+| `FRONTEND_URL` | Client Web App URL (CORS allowed origin) | `http://localhost:3000` |
+| `BACKEND_URL` | Public Server URL | `http://localhost:5000` |
+| `JWT_ACCESS_SECRET` | Secret key for signing Access Tokens | `your_access_secret_key` |
+| `JWT_REFRESH_SECRET` | Secret key for signing Refresh Tokens | `your_refresh_secret_key` |
+| `JWT_ACCESS_EXPIRES_IN` | Access token lifespan | `1d` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token lifespan | `7d` |
+| `BCRYPT_SALT_ROUNDS` | Hash salt rounds for passwords | `10` |
+| `GOOGLE_CLIENT_ID` | OAuth Client ID for Google login | `your-google-client-id` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary Cloud Name for media | `your-cloud-name` |
+| `CLOUDINARY_API_KEY` | Cloudinary API Key | `your-api-key` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API Secret | `your-api-secret` |
+| `BKASH_BASE_URL` | bKash API Endpoint | `https://tokenized.sandbox.bka.sh/v1.2.0-beta` |
+| `BKASH_APP_KEY` | bKash App Key | `your-bkash-app-key` |
+| `BKASH_APP_SECRET` | bKash App Secret | `your-bkash-app-secret` |
+| `BKASH_USERNAME` | bKash Merchant Username | `your-bkash-username` |
+| `BKASH_PASSWORD` | bKash Merchant Password | `your-bkash-password` |
+| `SMTP_USER` | SMTP Username for email delivery | `your-email@gmail.com` |
+| `SMTP_PASSWORD` | SMTP App Password | `your-app-password` |
 
-There's no validation on startup: if a variable is missing, `config` simply holds `undefined` for it, and the app boots anyway. The first sign of trouble is usually a runtime error the moment that value is actually used — for `JWT_ACCESS_SECRET`, that means the very first login or registration.
+---
 
-Before deploying anywhere, replace the JWT secrets — the ones in `.env.example` are placeholders anyone can guess:
+##  Database Seeding
 
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+The application features automated seed utilities in `src/app/utils/seed.ts` for quick developer onboarding and testing.
 
-## Project structure
+### Default Seeded Accounts:
+- **Super Admin Account**:
+  - Email: Defined by `SUPER_ADMIN_EMAIL` (default: `superadmin@gmail.com`)
+  - Password: Defined by `SUPER_ADMIN_PASSWORD` (default: `Super@admin12345`)
+- **Tester Admin Account**:
+  - Email: `admin@blooddonation.com`
+  - Password: `Admin@123456`
+- **Demo Donor Account**:
+  - Email: `donor@blooddonation.com`
+  - Password: `Donor@123456`
+  - Blood Group: `O_POSITIVE` | Location: `Dhaka`
 
-```
-src/
-├── server.ts                       # connects to the DB, then starts listening
-├── app.ts                          # express app: cors, body parsing, routes, error handling
-├── generated/prisma/                # Prisma client — git-ignored, run `npx prisma generate`
-└── app/
-    ├── config/index.ts              # reads and exposes every environment variable
-    ├── lib/prisma.ts                # shared PrismaClient instance — always import this, don't `new` your own
-    ├── middleware/
-    │   ├── checkAuth.ts             # exports `auth(...roles)`, the JWT + role guard
-    │   ├── globalErrorHandler.ts    # turns thrown errors into JSON responses
-    │   └── notFound.ts              # catch-all for unmatched routes
-    ├── utils/
-    │   ├── catchAsync.ts            # wraps async route handlers so thrown errors reach the error handler
-    │   ├── jwt.ts                   # sign / verify helpers
-    │   └── sendResponse.ts          # the standard `{ success, statusCode, message, data }` envelope
-    └── module/
-        └── auth/                    # the one feature module that exists so far
-            ├── auth.route.ts
-            ├── auth.controller.ts
-            ├── auth.service.ts
-            └── auth.interface.ts
+---
 
-prisma/
-├── schema/
-│   ├── schema.prisma                # generator + datasource only
-│   ├── user.prisma
-│   ├── patient.prisma
-│   └── enums.prisma                 # Role, UserStatus, Gender
-└── migrations/                      # generated SQL, committed to git
-```
+##  API Documentation
 
-Prisma's schema is split across multiple files, wired together by `prisma.config.ts` at the repo root. That file also loads `.env` so the Prisma CLI can see `DATABASE_URL`.
+### Base URL: `http://localhost:5000/api/v1`
 
-**The data model:** a `User` has at most one `Patient` (1-to-1). Registering writes both rows in a single nested Prisma call. Deletes are meant to be soft — there's an `isDeleted` flag and a `deletedAt` timestamp on both models — but nothing in the codebase sets them yet; there's no delete endpoint at all right now.
+---
 
-## The API
+### 1. Authentication (`/api/v1/auth`)
 
-Base URL: `http://localhost:5000`
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/auth/register` | Public | Register a new User / Patient / Donor account |
+| `POST` | `/auth/verify-email` | Public | Verify user account with OTP received via email |
+| `POST` | `/auth/login` | Public | User login with email and password |
+| `POST` | `/auth/google` | Public | Authenticate/Register user via Google OAuth Token |
+| `GET` | `/auth/me` | Logged In Users | Get currently logged in user profile & permissions |
+| `POST` | `/auth/refresh-token` | Public | Generate a new Access Token using Refresh Token |
+| `POST` | `/auth/forgot-password` | Public | Send password reset OTP to user email |
+| `POST` | `/auth/reset-password` | Public | Reset password using OTP |
 
-| Method | Path                          | Auth required | Body                         |
-| ------ | ----------------------------- | ------------- | ----------------------------- |
-| `GET`  | `/`                            | –             | health check                  |
-| `POST` | `/api/v1/auth/register`        | –             | `name`, `email`, `password`   |
-| `POST` | `/api/v1/auth/login`           | –             | `email`, `password`           |
-| `GET`  | `/api/v1/auth/me`              | yes           | –                              |
-| `POST` | `/api/v1/auth/refresh-token`   | –             | reads the `refreshToken` cookie |
+---
 
-Every response from `sendResponse` (i.e. everything except the root route) has this shape:
+### 2. User & Donor Profile (`/api/v1/users`)
 
-```json
-{ "success": true, "statusCode": 200, "message": "...", "data": {} }
-```
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `PATCH` | `/users/me` | All Roles | Update personal account profile details |
+| `PATCH` | `/users/donor-profile` | Donor, Admin, Super Admin | Update donor availability, blood group & contact info |
+| `GET` | `/users/donors` | All Logged In Roles | Search and filter active, eligible blood donors |
+| `PATCH` | `/users/profile-image` | All Roles | Upload or update profile picture via Cloudinary |
 
-### Tokens: use the response body, not the cookies
+---
 
-`register` and `login` return `accessToken` and `refreshToken` two ways: in the JSON body, and as cookies. **Use the JSON body.** The cookies are set with `sameSite: "none"` but `secure: false` — that combination is invalid under the cookie spec, and modern browsers silently drop the cookie rather than send it. Grab `data.accessToken` from the response and send it yourself:
+### 3. Blood Requests (`/api/v1/blood-requests`)
 
-```bash
-curl -X POST http://localhost:5000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test Patient","email":"patient@example.com","password":"password123"}'
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/blood-requests` | Patient, Admin, Super Admin | Create an urgent emergency blood request |
+| `GET` | `/blood-requests` | Public | List all active blood requests with filter options |
+| `GET` | `/blood-requests/my-requests` | Patient, Admin, Super Admin | View requests posted by the logged-in user |
+| `GET` | `/blood-requests/compatible-requests` | Donor, Admin, Super Admin | View requests compatible with logged-in donor's blood group |
+| `GET` | `/blood-requests/:id` | Public | Fetch detailed information of a specific request |
+| `PATCH` | `/blood-requests/:id` | Patient, Admin, Super Admin | Update details of an existing blood request |
+| `DELETE` | `/blood-requests/:id` | Patient, Admin, Super Admin | Delete/Cancel a blood request |
+| `POST` | `/blood-requests/:id/accept` | Donor, Admin, Super Admin | Donor accepts an emergency blood request |
+| `PATCH` | `/blood-requests/:id/complete` | Patient, Admin, Super Admin | Mark blood donation process as successfully completed |
 
-curl http://localhost:5000/api/v1/auth/me \
-  -H "Authorization: Bearer <accessToken from the response above>"
-```
+---
 
-`Authorization` accepts either `Bearer <token>` or the raw token with no prefix.
+### 4. Payments & Donations (`/api/v1/payments`)
 
-## Roles and authentication
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `POST` | `/payments/initiate` | All Logged In Roles | Initiate a monetary donation via bKash gateway |
+| `GET` | `/payments/bkash/callback` | Public | bKash server callback handler URL |
+| `GET` | `/payments/bkash/query/:paymentId` | All Logged In Roles | Check payment status from bKash gateway |
+| `POST` | `/payments/webhook` | Public | Webhook listener for payment execution notifications |
+| `GET` | `/payments/history` | All Logged In Roles | View logged-in user's payment transaction history |
+| `GET` | `/payments/:id` | All Logged In Roles | Retrieve receipt details for a specific payment |
 
-Four roles exist in the schema — `SUPER_ADMIN`, `ADMIN`, `DOCTOR`, `PATIENT` — but **registration always creates a `PATIENT`.** `registerPatient` hardcodes `Role.PATIENT` and only reads `name`, `email`, and `password` out of the request body, so sending `"role": "ADMIN"` does nothing. There's no admin module and no seed script, so the other three roles aren't reachable through the API yet. To test them, register a normal user and change their `role` directly in the database with `npx prisma studio` (opens at `http://localhost:5555`) — then log in again, since the role is baked into the token at login time and an old token keeps the old role.
+---
 
-`auth(...roles)`, exported from `checkAuth.ts`, is the route guard:
+### 5. Admin & Analytics (`/api/v1/admin`)
 
-```ts
-router.get('/me', auth(Role.ADMIN, Role.DOCTOR, Role.PATIENT, Role.SUPER_ADMIN), AuthController.getMe)
-```
+| Method | Endpoint | Auth Required | Description |
+|---|---|---|---|
+| `GET` | `/admin/users` | Admin, Super Admin | Fetch list of all system users with search & pagination |
+| `PATCH` | `/admin/users/:id/status` | Admin, Super Admin | Update user status (`ACTIVE`, `BLOCKED`, `SUSPENDED`) |
+| `PATCH` | `/admin/users/:id/role` | Admin, Super Admin | Change user role (`PATIENT`, `DONOR`, `ADMIN`, `SUPER_ADMIN`) |
+| `GET` | `/admin/dashboard-stats` | Admin, Super Admin | Retrieve platform analytics summary & metrics |
+| `GET` | `/admin/audit-logs` | Admin, Super Admin | View platform security and audit logs |
 
-What it actually does, in order:
+---
 
-1. Reads the token from the `accessToken` cookie, falling back to the `Authorization` header.
-2. Verifies the JWT signature.
-3. Checks the role **from the token payload** against the roles the route allows.
-4. Looks the user up in the database by matching `id`, `email`, `name`, *and* `role` all at once — if any of those four have changed since the token was issued, the lookup fails and the request is rejected, even though the account still exists.
-5. Rejects the request only if the user's `status` is exactly `BLOCKED`. It does **not** check `isDeleted` or a `DELETED` status, so a soft-deleted account can still authenticate as long as `status` wasn't also set to `BLOCKED`.
+##  Docker & Deployment
 
-## Known limitations
+### Run with Docker
 
-Worth knowing before you spend time debugging what looks like your own mistake:
+1. **Build Docker Image**:
+   ```bash
+   docker build -t blood-donation-backend .
+   ```
 
-- **Every error comes back as HTTP 500.** `globalErrorHandler` works out the "correct" status code internally but always sends the response with `500`, regardless. Read the `message` field, not the status code, to see what actually went wrong.
-- **No request validation.** Nothing checks that `email` looks like an email or that `password` meets any length requirement — Postgres and Prisma are the only things that will reject bad input, and usually not with a helpful message.
-- **`BCRYPT_SALT_ROUNDS` isn't used.** Password hashing in `auth.service.ts` calls `bcrypt.hash(password, 8)` with a hardcoded cost factor; the environment variable is read into `config` but nothing references it yet.
-- **No tests.** `npm test` is a placeholder.
+2. **Run Docker Container**:
+   ```bash
+   docker run -p 5000:5000 --env-file .env blood-donation-backend
+   ```
 
-## Extending this starter
+### Deploying to Cloud Services (Railway / Render / VPS)
+- This project includes ready-to-use deployment scripts and configurations:
+  - **`railway.json`**: Preconfigured for seamless Railway deployment using Dockerfile builder.
+  - **`nixpacks.toml`**: Optimized configuration for Nixpacks environments.
+  - **`docker-entrypoint.sh`**: Ensures automatic database migrations on container launch.
 
-New features go under `src/app/module/<name>/` as four files with strict responsibilities:
+---
 
-| File                   | Responsibility                                                    |
-| ---------------------- | ------------------------------------------------------------------- |
-| `<name>.route.ts`      | Wires `auth(...roles)` to controller functions, exports `<Name>Routes` |
-| `<name>.controller.ts` | Reads `req.body` / `req.user`, calls the service, calls `sendResponse` |
-| `<name>.service.ts`    | All business logic and every Prisma call for the module              |
-| `<name>.interface.ts`  | The TypeScript types for the module's payloads                       |
-
-Then mount it in `app.ts` next to the existing line:
-
-```ts
-app.use('/api/v1/doctor', DoctorRoutes)
-```
-
-Two rules keep the module boundaries useful rather than decorative:
-
-- **Controllers never call Prisma directly**, and **services never touch `req` or `res`.** If a service needs to know who's calling it, pass it the small `{ userId, email, name, role }` shape, not the whole request.
-- **Never spread `req.body` straight into a Prisma `create`/`update`.** Destructure the exact fields you expect. With no validation layer in front of the API, that destructuring is the only thing stopping someone from sending `"role": "ADMIN"` in a request body and having it stick.
-
-## Scripts
-
-```bash
-npm run dev     # start the server with auto-reload (tsx watch) — use this while developing
-npm run build   # typecheck with tsc and emit to dist/
-npm run start   # run the server once, no watching
-```
-
-There's no `npm run generate` / `migrate` / `studio` wrapper — call Prisma's CLI directly:
-
-```bash
-npx prisma generate     # regenerate the client after editing prisma/schema/
-npx prisma migrate dev  # create + apply a migration
-npx prisma studio       # browser GUI for your data, at http://localhost:5555
-```
-
-### A note on `npm run build`
-
-`npm run build` is useful for catching type errors, but its output isn't directly runnable with `node`. The codebase uses extensionless relative imports (`from './app'`), which `tsx` resolves fine but Node's native ESM loader doesn't — running `node dist/src/server.js` fails with `ERR_UNSUPPORTED_DIR_IMPORT`. That's why `npm run start` runs the TypeScript source through `tsx` rather than executing `dist/`.
-
-## Troubleshooting
-
-**`Cannot find module '.../src/generated/prisma/client'`**
-Run `npx prisma generate` — see step 3 of [Getting started](#getting-started).
-
-**`Can't reach database server` / `ECONNREFUSED`**
-Postgres isn't running, or `DATABASE_URL` points somewhere it can't reach. Confirm with `pg_isready -h localhost -p 5432`.
-
-**`P1010: User was denied access on the database`**
-The username or password in `DATABASE_URL` doesn't match a real role on your Postgres server. `psql -c '\du'` lists the roles that actually exist; `whoami` gives you your OS username, which is usually your local superuser with no password.
-
-**Login or register throws instead of returning a token**
-Check that `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` are actually set in your `.env` — `jsonwebtoken` throws if the signing secret is `undefined`, and this project doesn't validate environment variables on startup.

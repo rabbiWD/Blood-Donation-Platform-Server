@@ -25,16 +25,24 @@ const main = async () => {
 		await redisClient.connect();
 		console.log("Connected to Redis successfully.");
 
-		await transporter.verify();
-		console.log("Nodemailer Connected Successfully");
-
-		await seedSuperAdmin();
-		await seedTesterAdmin();
-		await seedTesterDonor();
-
-		app.listen(PORT, () => {
+		app.listen(Number(PORT), "0.0.0.0", () => {
 			console.log(`Server is running on port ${PORT}`);
 		});
+
+		if (config.smtp_user && config.smtp_password) {
+			try {
+				await transporter.verify();
+				console.log("Nodemailer Connected Successfully");
+			} catch (smtpErr) {
+				console.warn("Nodemailer verification warning:", smtpErr);
+			}
+		} else {
+			console.log("Nodemailer skipped: SMTP credentials not provided.");
+		}
+
+		seedSuperAdmin().catch((e) => console.error("SuperAdmin seed error:", e));
+		seedTesterAdmin().catch((e) => console.error("TesterAdmin seed error:", e));
+		seedTesterDonor().catch((e) => console.error("TesterDonor seed error:", e));
 	} catch (error) {
 		console.error("Error starting the server:", error);
 		await prisma.$disconnect();
