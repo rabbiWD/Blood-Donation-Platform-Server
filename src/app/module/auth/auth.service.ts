@@ -5,11 +5,11 @@ import type { TokenPayload } from "google-auth-library";
 import httpStatus from "http-status";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import path from "path";
-import {
-	AuthProvider,
-	Role,
-	UserStatus,
-} from "@prisma/client";
+// import {
+// 	AuthProvider,
+// 	Role,
+// 	UserStatus,
+// } from "@prisma/client";
 import config from "../../config/index.js";
 import { AppError } from "../../errors/AppError.js";
 import { googleClient } from "../../lib/googleAuth.js";
@@ -26,6 +26,7 @@ import type {
 	IVerifyEmailPayload,
 } from "./auth.interface.js";
 import { redisClient } from "../../lib/redis.js";
+import { AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums.js";
 
 const registerUser = async (payload: IRegisterUserPayload) => {
 	const { name, password, role = Role.PATIENT, donor, patient } = payload;

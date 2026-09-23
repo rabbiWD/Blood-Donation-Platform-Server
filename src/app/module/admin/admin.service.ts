@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+// import type { Prisma } from "@prisma/client";
 import { AppError } from "../../errors/AppError.js";
 import { prisma } from "../../lib/prisma.js";
 import httpStatus from "http-status";
@@ -7,6 +7,7 @@ import type {
 	IUpdateUserRolePayload,
 	IUpdateUserStatusPayload,
 } from "./admin.interface.js";
+import { Prisma } from "../../../generated/prisma/client.js";
 
 const getAllUsers = async (query: IAdminUserQuery) => {
 	const page = Number(query.page) || 1;

@@ -1,4 +1,5 @@
-import { BloodGroup } from "@prisma/client/";
+import { BloodGroup } from "../../../generated/prisma/enums";
+
 
 
 export interface IUpdateUserProfilePayload {

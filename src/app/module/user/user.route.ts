@@ -5,7 +5,8 @@ import { validateRequest } from "../../middleware/validateRequest.js";
 import { UserController } from "./user.controller.js";
 import { UserValidation } from "./user.validation.js";
 import { upload } from "../../lib/multer.js";
-import { Role } from "@prisma/client/index-browser";
+import { Role } from "../../../generated/prisma/enums.js";
+// import { Role } from "@prisma/client/index-browser";
 
 const router = Router();
 

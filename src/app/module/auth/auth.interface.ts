@@ -1,4 +1,6 @@
-import type { BloodGroup, Role } from "@prisma/client";
+// import type { BloodGroup, Role } from "@prisma/client";
+
+import { BloodGroup, Role } from "../../../generated/prisma/enums";
 
 export interface ILoginUserPayload {
 	email: string;
