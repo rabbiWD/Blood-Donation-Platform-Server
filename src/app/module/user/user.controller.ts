@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import { AppError } from "../../errors/AppError.js";
-import { catchAsync } from "../../utils/catchAsync.js";
-import { sendResponse } from "../../utils/sendResponse.js";
-import { UserService } from "./user.service.js";
+import { AppError } from "../../errors/AppError";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { UserService } from "./user.service";
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.userId;
@@ -36,7 +36,7 @@ const updateDonorProfile = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getEligibleDonors = catchAsync(async (req: Request, res: Response) => {
-	const result = await UserService.getEligibleDonors(req.query);
+	const result = await UserService.getEligibleDonors(req.query, !!req.user);
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,

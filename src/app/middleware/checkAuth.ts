@@ -2,11 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import type { JwtPayload } from "jsonwebtoken";
 import type { Role } from "@prisma/client";
-import config from "../config/index.js";
-import { AppError } from "../errors/AppError.js";
-import { prisma } from "../lib/prisma.js";
-import { catchAsync } from "../utils/catchAsync.js";
-import { jwtUtils } from "../utils/jwt.js";
+import config from "../config/index";
+import { AppError } from "../errors/AppError";
+import { prisma } from "../lib/prisma";
+import { catchAsync } from "../utils/catchAsync";
+import { jwtUtils } from "../utils/jwt";
 
 declare global {
 	namespace Express {
@@ -87,3 +87,40 @@ export const auth = (...requiredRoles: Role[]) => {
 		},
 	);
 };
+
+export const optionalAuth = catchAsync(
+	async (req: Request, _res: Response, next: NextFunction) => {
+		const token = req.cookies.accessToken
+			? req.cookies.accessToken
+			: req.headers.authorization?.startsWith("Bearer ")
+				? req.headers.authorization?.split(" ")[1]
+				: req.headers.authorization;
+
+		if (!token) {
+			return next();
+		}
+
+		const verifiedToken = jwtUtils.verifyToken(
+			token,
+			config.jwt_access_secret,
+		);
+
+		if (verifiedToken.success) {
+			const { userId } = verifiedToken.data as JwtPayload;
+			const user = await prisma.user.findUnique({
+				where: { id: userId },
+			});
+
+			if (user && !user.isDeleted && user.status !== "BLOCKED") {
+				req.user = {
+					email: user.email,
+					name: user.name,
+					userId: user.id,
+					role: user.role,
+				};
+			}
+		}
+
+		next();
+	},
+);

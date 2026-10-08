@@ -1,13 +1,13 @@
 import type { Prisma } from "@prisma/client";
-import { AppError } from "../../errors/AppError.js";
-import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../errors/AppError";
+import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status";
 import type {
 	IDonorSearchQuery,
 	IUpdateDonorProfilePayload,
 	IUpdateUserProfilePayload,
-} from "./user.interface.js";
-import { cloudinary } from "../../lib/cloudinary.js";
+} from "./user.interface";
+import { cloudinary } from "../../lib/cloudinary";
 import { UploadApiResponse } from "cloudinary";
 
 const updateMyProfile = async (
@@ -95,7 +95,10 @@ const updateDonorProfile = async (
 	return updatedDonorProfile;
 };
 
-const getEligibleDonors = async (query: IDonorSearchQuery) => {
+const getEligibleDonors = async (
+	query: IDonorSearchQuery,
+	isAuthenticated = false,
+) => {
 	const page = Number(query.page) || 1;
 	const limit = Number(query.limit) || 10;
 	const skip = (page - 1) * limit;
@@ -167,6 +170,11 @@ const getEligibleDonors = async (query: IDonorSearchQuery) => {
 			!donor.lastDonationDate || donor.lastDonationDate <= ninetyDaysAgo;
 		return {
 			...donor,
+			contactNumber: isAuthenticated
+				? donor.contactNumber
+				: donor.contactNumber
+					? `${donor.contactNumber.slice(0, 4)}•••••••`
+					: "",
 			isEligibleToDonate: donor.isAvailable && isEligibleByDate,
 		};
 	});

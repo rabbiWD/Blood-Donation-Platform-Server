@@ -1,12 +1,12 @@
 import { Router } from "express";
 
-import { auth } from "../../middleware/checkAuth.js";
-import { validateRequest } from "../../middleware/validateRequest.js";
-import { UserController } from "./user.controller.js";
-import { UserValidation } from "./user.validation.js";
-import { upload } from "../../lib/multer.js";
-import { Role } from "../../../generated/prisma/enums.js";
-// import { Role } from "@prisma/client/index-browser";
+import { auth, optionalAuth } from "../../middleware/checkAuth";
+import { validateRequest } from "../../middleware/validateRequest";
+import { UserController } from "./user.controller";
+import { UserValidation } from "./user.validation";
+import { upload } from "../../lib/multer";
+import { Role } from "../../../generated/prisma/enums";
+
 
 const router = Router();
 
@@ -26,7 +26,7 @@ router.patch(
 
 router.get(
 	"/donors",
-	auth(Role.ADMIN, Role.PATIENT, Role.DONOR, Role.SUPER_ADMIN),
+	optionalAuth,
 	UserController.getEligibleDonors,
 );
 
