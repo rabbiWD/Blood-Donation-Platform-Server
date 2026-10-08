@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
-import config from "../config/index.js";
-import { prisma } from "../lib/prisma.js";
+import config from "../config/index";
+import { prisma } from "../lib/prisma";
 
 export const seedSuperAdmin = async () => {
 	try {

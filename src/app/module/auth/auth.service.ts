@@ -10,12 +10,12 @@ import path from "path";
 // 	Role,
 // 	UserStatus,
 // } from "@prisma/client";
-import config from "../../config/index.js";
-import { AppError } from "../../errors/AppError.js";
-import { googleClient } from "../../lib/googleAuth.js";
-import { transporter } from "../../lib/nodemailer.js";
-import { prisma } from "../../lib/prisma.js";
-import { jwtUtils } from "../../utils/jwt.js";
+import config from "../../config/index";
+import { AppError } from "../../errors/AppError";
+import { googleClient } from "../../lib/googleAuth";
+import { transporter } from "../../lib/nodemailer";
+import { prisma } from "../../lib/prisma";
+import { jwtUtils } from "../../utils/jwt";
 import type {
 	IForgotPasswordPayload,
 	IGoogleLoginPayload,
@@ -24,9 +24,9 @@ import type {
 	IRequestUser,
 	IResetPasswordPayload,
 	IVerifyEmailPayload,
-} from "./auth.interface.js";
-import { redisClient } from "../../lib/redis.js";
-import { AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums.js";
+} from "./auth.interface";
+import { redisClient } from "../../lib/redis";
+import { AuthProvider, Role, UserStatus } from "../../../generated/prisma/enums";
 
 const registerUser = async (payload: IRegisterUserPayload) => {
 	const { name, password, role = Role.PATIENT, donor, patient } = payload;

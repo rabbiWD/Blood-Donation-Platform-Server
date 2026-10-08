@@ -1,13 +1,13 @@
-import app from "./app.js";
-import config from "./app/config/index.js";
-import { transporter } from "./app/lib/nodemailer.js";
-import { prisma } from "./app/lib/prisma.js";
-import { redisClient } from "./app/lib/redis.js";
+import app from "./app";
+import config from "./app/config/index";
+import { transporter } from "./app/lib/nodemailer";
+import { prisma } from "./app/lib/prisma";
+import { redisClient } from "./app/lib/redis";
 import {
 	seedSuperAdmin,
 	seedTesterAdmin,
 	seedTesterDonor,
-} from "./app/utils/seed.js";
+} from "./app/utils/seed";
 
 const PORT = config.port || 5000;
 

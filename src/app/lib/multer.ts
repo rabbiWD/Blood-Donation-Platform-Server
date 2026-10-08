@@ -1,6 +1,6 @@
 // import multer from "multer";
 // import httpStatus from "http-status";
-// import { AppError } from "../errors/AppError.js";
+// import { AppError } from "../errors/AppError";
 
 // const storage = multer.memoryStorage();
 
