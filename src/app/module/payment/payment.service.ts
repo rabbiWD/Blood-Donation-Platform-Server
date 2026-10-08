@@ -1,14 +1,14 @@
 import crypto from "node:crypto";
 import httpStatus from "http-status";
-import config from "../../config/index.js";
-import { AppError } from "../../errors/AppError.js";
-import { BkashClient } from "../../lib/bkash.js";
-import { prisma } from "../../lib/prisma.js";
+import config from "../../config/index";
+import { AppError } from "../../errors/AppError";
+import { BkashClient } from "../../lib/bkash";
+import { prisma } from "../../lib/prisma";
 import type {
 	IBkashCallbackQuery,
 	IInitiatePaymentPayload,
 	IPaymentWebhookPayload,
-} from "./payment.interface.js";
+} from "./payment.interface";
 
 const initiatePayment = async (
 	userId: string,
@@ -98,10 +98,10 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 		where: { paymentIntentId: paymentID },
 	});
 
-	const baseBackendUrl = config.backend_url || "http://localhost:5000";
+	const frontendUrl = config.frontend_url || "http://localhost:3000";
 
 	if (!payment) {
-		const redirectUrl = `${baseBackendUrl}/api/v1/payments/failed?message=Transaction+record+not+found`;
+		const redirectUrl = `${frontendUrl}/payment/cancel?message=Transaction+record+not+found`;
 		return { redirectUrl };
 	}
 
@@ -112,7 +112,7 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 			data: { status: "FAILED" },
 		});
 		return {
-			redirectUrl: `${baseBackendUrl}/api/v1/payments/cancel?paymentID=${paymentID}`,
+			redirectUrl: `${frontendUrl}/payment/cancel?paymentID=${paymentID}`,
 		};
 	}
 
@@ -123,7 +123,7 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 			data: { status: "FAILED" },
 		});
 		return {
-			redirectUrl: `${baseBackendUrl}/api/v1/payments/failed?paymentID=${paymentID}`,
+			redirectUrl: `${frontendUrl}/payment/cancel?paymentID=${paymentID}&message=bKash+payment+failed`,
 		};
 	}
 
@@ -132,7 +132,7 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 		// If already paid, return success idempotently
 		if (payment.status === "PAID") {
 			return {
-				redirectUrl: `${baseBackendUrl}/api/v1/payments/success?paymentID=${paymentID}&trxID=${payment.transactionId}`,
+				redirectUrl: `${frontendUrl}/payment/success?paymentID=${paymentID}&trxID=${payment.transactionId}&amount=${payment.amount}`,
 			};
 		}
 
@@ -161,7 +161,7 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 			});
 
 			return {
-				redirectUrl: `${baseBackendUrl}/api/v1/payments/success?paymentID=${paymentID}&trxID=${finalTrxId}`,
+				redirectUrl: `${frontendUrl}/payment/success?paymentID=${paymentID}&trxID=${finalTrxId}&amount=${payment.amount}`,
 			};
 		}
 
@@ -175,13 +175,13 @@ const handleBkashCallback = async (query: IBkashCallbackQuery) => {
 			executeResult.statusMessage || "Payment execution failed",
 		);
 		return {
-			redirectUrl: `${baseBackendUrl}/api/v1/payments/failed?paymentID=${paymentID}&message=${errorMsg}`,
+			redirectUrl: `${frontendUrl}/payment/cancel?paymentID=${paymentID}&message=${errorMsg}`,
 		};
 	}
 
 	// Fallback for unknown statuses
 	return {
-		redirectUrl: `${baseBackendUrl}/api/v1/payments/failed?paymentID=${paymentID}&message=Unknown+status`,
+		redirectUrl: `${frontendUrl}/payment/cancel?paymentID=${paymentID}&message=Unknown+status`,
 	};
 };
 

@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
-import { AppError } from "../../errors/AppError.js";
-import { catchAsync } from "../../utils/catchAsync.js";
-import { sendResponse } from "../../utils/sendResponse.js";
-import { prisma } from "../../lib/prisma.js";
-import type { IBkashCallbackQuery } from "./payment.interface.js";
-import { PaymentService } from "./payment.service.js";
+import config from "../../config/index";
+import { AppError } from "../../errors/AppError";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { prisma } from "../../lib/prisma";
+import type { IBkashCallbackQuery } from "./payment.interface";
+import { PaymentService } from "./payment.service";
 
-import { PaymentValidation } from "./payment.validation.js";
+import { PaymentValidation } from "./payment.validation";
 
 const initiatePayment = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.userId;
@@ -41,38 +42,18 @@ const paymentSuccess = catchAsync(async (req: Request, res: Response) => {
 	const payment = paymentID
 		? await prisma.payment.findFirst({
 				where: { paymentIntentId: paymentID },
-				include: {
-					user: {
-						select: {
-							id: true,
-							name: true,
-							email: true,
-						},
-					},
-					bloodRequest: {
-						select: {
-							id: true,
-							patientName: true,
-							bloodGroup: true,
-						},
-					},
-				},
-			})
+		  })
 		: null;
 
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "bKash payment completed successfully",
-		data: {
-			paymentID,
-			trxID: trxID || payment?.transactionId,
-			amount: payment?.amount,
-			currency: payment?.currency || "BDT",
-			status: "PAID",
-			payment,
-		},
-	});
+	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	const amountParam = payment?.amount ? `&amount=${payment.amount}` : "";
+	const trxParam =
+		trxID || payment?.transactionId
+			? `&trxID=${trxID || payment?.transactionId}`
+			: "";
+	return res.redirect(
+		`${frontendUrl}/payment/success?paymentID=${paymentID || ""}${trxParam}${amountParam}`,
+	);
 });
 
 const paymentFailed = catchAsync(async (req: Request, res: Response) => {
@@ -81,29 +62,20 @@ const paymentFailed = catchAsync(async (req: Request, res: Response) => {
 		message?: string;
 	};
 
-	sendResponse(res, {
-		statusCode: httpStatus.BAD_REQUEST,
-		success: false,
-		message: message || "bKash payment failed",
-		data: {
-			paymentID,
-			status: "FAILED",
-		},
-	});
+	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	const errorMsg = encodeURIComponent(message || "bKash payment failed");
+	return res.redirect(
+		`${frontendUrl}/payment/cancel?paymentID=${paymentID || ""}&message=${errorMsg}`,
+	);
 });
 
 const paymentCancel = catchAsync(async (req: Request, res: Response) => {
 	const { paymentID } = req.query as { paymentID?: string };
 
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: false,
-		message: "bKash payment was cancelled by user",
-		data: {
-			paymentID,
-			status: "CANCELLED",
-		},
-	});
+	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	return res.redirect(
+		`${frontendUrl}/payment/cancel?paymentID=${paymentID || ""}`,
+	);
 });
 
 const queryBkashPayment = catchAsync(async (req: Request, res: Response) => {
