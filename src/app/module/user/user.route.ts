@@ -30,6 +30,11 @@ router.get(
 	UserController.getEligibleDonors,
 );
 
+router.get(
+	"/platform-stats",
+	UserController.getPlatformStats,
+);
+
 router.patch(
 	"/profile-image",
 	auth(Role.SUPER_ADMIN, Role.ADMIN, Role.DONOR, Role.PATIENT),

@@ -68,9 +68,20 @@ const uploadProfileImage = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getPlatformStats = catchAsync(async (_req: Request, res: Response) => {
+	const result = await UserService.getPlatformStats();
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Platform statistics retrieved successfully",
+		data: result,
+	});
+});
+
 export const UserController = {
 	updateMyProfile,
 	updateDonorProfile,
 	getEligibleDonors,
 	uploadProfileImage,
+	getPlatformStats,
 };
