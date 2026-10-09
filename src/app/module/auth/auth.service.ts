@@ -47,6 +47,7 @@ const registerUser = async (payload: IRegisterUserPayload) => {
 
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
 	const expirationSeconds = 5 * 60; // 5 minutes
+	console.log(`[AUTH OTP] Verification OTP for ${email}: ${otpValue}`);
 
 	const redisKeyOtp = `register-user-otp:${email}`;
 	const redisKeyData = `register-user-data:${email}`;
