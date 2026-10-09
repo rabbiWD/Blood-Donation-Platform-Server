@@ -7,7 +7,9 @@ import {
 	seedSuperAdmin,
 	seedTesterAdmin,
 	seedTesterDonor,
+	seedTesterPatient,
 } from "./app/utils/seed";
+
 
 const PORT = config.port || 5000;
 
@@ -43,7 +45,9 @@ const main = async () => {
 		seedSuperAdmin().catch((e) => console.error("SuperAdmin seed error:", e));
 		seedTesterAdmin().catch((e) => console.error("TesterAdmin seed error:", e));
 		seedTesterDonor().catch((e) => console.error("TesterDonor seed error:", e));
+		seedTesterPatient().catch((e) => console.error("TesterPatient seed error:", e));
 	} catch (error) {
+
 		console.error("Error starting the server:", error);
 		await prisma.$disconnect();
 		process.exit(1);

@@ -118,3 +118,44 @@ export const seedTesterDonor = async () => {
 		console.error("Error seeding Donor:", error);
 	}
 };
+
+export const seedTesterPatient = async () => {
+	try {
+		const patientEmail = "mahinachowdhury0@gmail.com";
+		const isPatientExist = await prisma.user.findUnique({
+			where: { email: patientEmail },
+		});
+
+		if (isPatientExist) {
+			return;
+		}
+
+		const hashedPassword = await bcrypt.hash(
+			"Patient@123456",
+			Number(config.bcrypt_salt_rounds) || 10,
+		);
+
+		await prisma.user.create({
+			data: {
+				name: "Mahina Chowdhury",
+				email: patientEmail,
+				password: hashedPassword,
+				role: Role.PATIENT,
+				status: "ACTIVE",
+				emailVerified: true,
+				patientProfile: {
+					create: {
+						contactNumber: "+8801800000000",
+						address: "Dhanmondi, Dhaka",
+						hospitalName: "Dhaka Medical College Hospital",
+					},
+				},
+			},
+		});
+
+		console.log("Demo Patient seeded successfully:", patientEmail);
+	} catch (error) {
+		console.error("Error seeding Patient:", error);
+	}
+};
+
