@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+
 import { AppError } from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status";
@@ -9,6 +9,7 @@ import type {
 } from "./user.interface";
 import { cloudinary } from "../../lib/cloudinary";
 import { UploadApiResponse } from "cloudinary";
+import { Prisma } from "../../../generated/prisma/client";
 
 const updateMyProfile = async (
 	userId: string,

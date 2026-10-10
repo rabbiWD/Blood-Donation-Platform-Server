@@ -1,5 +1,4 @@
 // import { Router } from "express";
-// import { Role } from "@prisma/client";
 // import { upload } from "../../lib/multer";
 // import { auth } from "../../middleware/checkAuth";
 // import { FileController } from "./file.controller";

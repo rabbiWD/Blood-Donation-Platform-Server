@@ -1,4 +1,4 @@
-// import type { Prisma } from "@prisma/client";
+
 import { AppError } from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status";

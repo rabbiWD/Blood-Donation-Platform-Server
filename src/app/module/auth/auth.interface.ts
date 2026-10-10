@@ -1,4 +1,3 @@
-// import type { BloodGroup, Role } from "@prisma/client";
 
 import { BloodGroup, Role } from "../../../generated/prisma/enums";
 

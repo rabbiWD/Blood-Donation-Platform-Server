@@ -5,11 +5,6 @@ import type { TokenPayload } from "google-auth-library";
 import httpStatus from "http-status";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import path from "path";
-// import {
-// 	AuthProvider,
-// 	Role,
-// 	UserStatus,
-// } from "@prisma/client";
 import config from "../../config/index";
 import { AppError } from "../../errors/AppError";
 import { googleClient } from "../../lib/googleAuth";
