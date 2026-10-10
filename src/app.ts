@@ -18,11 +18,21 @@ import { UserRoutes } from "./app/module/user/user.route";
 
 const app: Application = express();
 
+// app.use(
+// 	cors({
+// 		origin: config.frontend_url || "*",
+// 		credentials: true,
+// 	}),
+// );
+
 app.use(
-	cors({
-		origin: config.frontend_url || "*",
-		credentials: true,
-	}),
+    cors({
+        origin: [
+            "http://localhost:3000", 
+            "https://blood-donation-client-nu.vercel.app" // Sesh e kono slash (/) thakbe na
+        ],
+        credentials: true,
+    }),
 );
 
 // Enable URL-encoded form data parsing and JSON parsing
