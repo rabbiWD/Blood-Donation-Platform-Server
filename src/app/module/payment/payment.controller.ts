@@ -45,7 +45,7 @@ const paymentSuccess = catchAsync(async (req: Request, res: Response) => {
 		  })
 		: null;
 
-	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	const frontendUrl = config.frontend_url;
 	const amountParam = payment?.amount ? `&amount=${payment.amount}` : "";
 	const trxParam =
 		trxID || payment?.transactionId
@@ -62,7 +62,7 @@ const paymentFailed = catchAsync(async (req: Request, res: Response) => {
 		message?: string;
 	};
 
-	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	const frontendUrl = config.frontend_url;
 	const errorMsg = encodeURIComponent(message || "bKash payment failed");
 	return res.redirect(
 		`${frontendUrl}/payment/cancel?paymentID=${paymentID || ""}&message=${errorMsg}`,
@@ -72,7 +72,7 @@ const paymentFailed = catchAsync(async (req: Request, res: Response) => {
 const paymentCancel = catchAsync(async (req: Request, res: Response) => {
 	const { paymentID } = req.query as { paymentID?: string };
 
-	const frontendUrl = config.frontend_url || "http://localhost:3000";
+	const frontendUrl = config.frontend_url;
 	return res.redirect(
 		`${frontendUrl}/payment/cancel?paymentID=${paymentID || ""}`,
 	);
